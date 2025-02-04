@@ -1,16 +1,5 @@
----
-title: AgroAssist
-emoji: 🌾
-colorFrom: green
-colorTo: yellow
-sdk: docker
-app_port: 7860
-fullscreen: true
-pinned: false
-short_description: A smart crop recommendation system using machine learning
----
 
-# AgroAssist - Crop Recommendation System
+# AgroAssist - Smart Crop Recommendation System using ML
 
 A smart crop recommendation system that helps farmers choose the best crops based on soil conditions and environmental factors.
 
@@ -19,16 +8,18 @@ A smart crop recommendation system that helps farmers choose the best crops base
 - Soil analysis (NPK values)
 - Climate assessment
 - 22+ crop varieties supported
-- Interactive data visualization
+- Interactive data visualization using power bi
 
 ## Technical Stack
+- Python
 - Flask
 - Scikit-learn
 - NumPy
 - Pandas
 - Bootstrap
 - PowerBI integration
+- Html, css, js
+  
 
-## Directory Structure
-
-Check out the configuration reference at https://huggingface.co/docs/hub/spaces-config-reference
+## FOR DEMO 
+check out - https://gkc55-agrocrop.hf.space
