@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Recommendation System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        /* Banner styling */
+        .banner {
+            background-color: #ffffff; /* Placeholder background color */
+            height: 85vh; /* 60% of viewport height */
+            width: 1500px;
+            border-radius: 10px; /* Rounded corners */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px auto; /* Centered with some margin */
+            max-width: 1500px; /* Maximum width for the banner */
+            box-shadow: 0 3px 15px rgba(255, 255, 255, 0.1); /* Optional shadow */
+            position: relative; /* Needed for absolute positioning of button */
+        }
+        .banner img {
+            max-width: 75%; /* Responsive image */n
+            max-height: 75%; /* Prevents overflow */
+            border-radius: 20px; /* Match the banner's rounded corners */
+        }
+        .predict-button {
+            position: absolute; /* Position relative to the banner */
+            left: 35%; /* Align to the left */
+            top: 70; /* Align vertically */
+            transform: translateY(-50%); /* Center the button vertically */
+            background-color: #003400; /* Dark green color */
+            color: rgb(255, 255, 255); /* Button text color */
+            border: none; /* Remove border */
+            text-decoration: none;
+            padding: 12px 35px; /* Button padding */
+            border-radius: 5px; /* Rounded corners */
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .info-section {
+            padding: 20px;
+            background-color: #f8f9fa; /* Light grey background for the info section */
+            border-radius: 10px; /* Rounded corners */
+            margin: 100px auto; /* 100px margin */
+            max-width: 1200px; /* Maximum width for the info section */
+        }
+        .info-section h3 {
+            font-weight: 600; /* Bold heading */
+            margin-bottom: 15px; /* Spacing below the heading */
+        }
+        .info-section h4 {
+            font-weight: 500; /* Medium weight for subheading */
+            margin-top: 15px; /* Spacing above the subheading */
+        }
+        .info-section p {
+            margin-bottom: 15px; /* Spacing below paragraphs */
+
+        }
+        .crop-list {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 15px;
+        }
+        .crop-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .crop-image {
+            display: block;
+            margin: 0 auto;
+            width: 260px;
+            height: 260px;
+            object-fit: cover;
+            border-radius: 9px;
+        }
+        .nav-item {
+            font-weight: 500;
+        }
+        .navbar {
+            background-color: #0d1025;
+            padding: 0.5rem 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            min-height: 65px;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-img {
+            width: 50px;
+            height: 50px;
+            transition: transform 0.3s;
+        }
+
+        .navbar-toggler {
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 0.25rem 0.75rem;
+        }
+
+        .navbar-toggler:focus {
+            box-shadow: none;
+            outline: none;
+        }
+
+        .navbar-collapse {
+            flex-grow: 0;
+        }
+
+        .navbar-nav {
+            align-items: center;
+        }
+
+        .nav-link {
+            color: white !important;
+            padding: 0.5rem 1rem !important;
+            margin: 0 0.2rem;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .brand-text {
+            color: #737373;
+            margin-left: 1rem;
+        }
+
+        /* Fix predict button size */
+        .predict-button {
+            position: absolute;
+            left: 31%;
+            transform: translateX(-50%);
+            bottom: 25%;
+            white-space: nowrap;
+            padding: 12px 35px;
+            font-size: 18px;
+            background-color: #003400;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .predict-button:hover {
+            transform: translateX(-50%) translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        @media (max-width: 991px) {
+            .navbar-collapse {
+                background-color: #0d1025;
+                padding: 1rem;
+                border-radius: 0 0 10px 10px;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                z-index: 1000;
+            }
+
+            .nav-link {
+                text-align: center;
+            }
+
+            .brand-text {
+                margin: 0.5rem 0;
+                text-align: center;
+                display: block;
+            }
+        }
+
+        /* Responsive Banner Styles */
+        .banner {
+            width: 100%;
+            max-width: 1500px;
+            height: auto;
+            min-height: 60vh;
+            margin: 1rem auto;
+            padding: 1rem;
+        }
+
+        /* Responsive Card Grid */
+        .crop-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 1rem;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        /* Media Queries */
+        @media (max-width: 768px) {
+            .banner {
+                height: 50vh;
+            }
+
+            .predict-button {
+                font-size: 16px;
+                padding: 8px 20px;
+            }
+
+            .logo-img {
+                width: 50px;
+                height: 50px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .banner {
+                height: 40vh;
+            }
+
+            .info-section {
+                padding: 1rem;
+            }
+
+            .crop-image {
+                height: 150px;
+            }
+        }
+
+        /* Card hover effects */
+        .card {
+            border: none;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        /* Info section improvements */
+        .info-section {
+            background: linear-gradient(145deg, #ffffff, #f8f9fa);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .info-section ul li {
+            margin-bottom: 1rem;
+            padding-left: 1rem;
+            position: relative;
+        }
+
+        .info-section ul li::before {
+            content: "•";
+            color: #003400;
+            font-weight: bold;
+            position: absolute;
+            left: -1rem;
+        }
+
+        /* Crop list improvements */
+        .crop-list {
+            scrollbar-width: thin;
+            scrollbar-color: #003400 #f0f0f0;
+        }
+
+        .crop-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .crop-list::-webkit-scrollbar-track {
+            background: #f0f0f0;
+            border-radius: 10px;
+        }
+
+        .crop-list::-webkit-scrollbar-thumb {
+            background-color: #003400;
+            border-radius: 10px;
+        }
+
+        /* Footer improvements */
+        footer {
+            background: linear-gradient(to right, #0d1025, #1a1a2e);
+            padding: 2rem 0;
+        }
+
+        footer p {
+            margin: 0.5rem 0;
+            opacity: 0.9;
+        }
+
+        .flow-section {
+            padding: 3rem 0;
+        }
+
+        .flow-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: all 0.3s ease;
+            height: 100%;
+            position: relative;
+        }
+
+        .flow-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        .flow-card::after {
+            content: "→";
+            position: absolute;
+            right: -25px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 2rem;
+            color: #003400;
+            font-weight: bold;
+        }
+
+        .flow-card:last-child::after {
+            display: none;
+        }
+
+        .flow-icon {
+            width: 80px;
+            height: 80px;
+            background: #003400;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+        }
+
+        .flow-icon i {
+            font-size: 2rem;
+            color: white;
+        }
+
+        .flow-card h4 {
+            color: #003400;
+            margin-bottom: 1rem;
+        }
+
+        .flow-card p {
+            color: #666;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .flow-card::after {
+                content: "↓";
+                right: 50%;
+                bottom: -25px;
+                top: auto;
+                transform: translateX(50%);
+            }
+
+            .flow-card {
+                margin-bottom: 2rem;
+            }
+        }
+
+        /* Add Features Section */
+        .features-section {
+            padding: 3rem 0;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        .feature-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #003400, #006400);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover .feature-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .feature-icon i {
+            font-size: 1.8rem;
+            color: white;
+        }
+
+        .feature-content h4 {
+            color: #003400;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .feature-content p {
+            color: #666;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .feature-hover {
+            position: absolute;
+            bottom: -40px;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #003400, #006400);
+            padding: 0.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            opacity: 0;
+        }
+
+        .feature-card:hover .feature-hover {
+            bottom: 0;
+            opacity: 1;
+        }
+
+        .hover-text {
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .feature-card {
+                margin-bottom: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a href="/" class="navbar-brand">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="AgroAssist Logo" class="logo-img">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/"><i class="fas fa-house"></i> Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/recommendation"><i class="fas fa-seedling"></i> Recommend</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/info"><i class="fas fa-chart-bar"></i> Statistics</a>
+                    </li>
+                </ul>
+                <span class="navbar-text brand-text">AgroAssist</span>
+            </div>
+        </div>
+    </nav>
+    
+
+    <!-- Banner Section -->
+    <div class="banner">
+        <img src="{{ url_for('static', filename='banner.png') }}" alt="Banner Image">
+        <a href="/recommendation" class="predict-button">Click to Predict →</a> <!-- Button added here -->
+    </div>
+
+    <!-- Information Section -->
+
+
+    <!-- Add this after the info-section div -->
+    <div class="container flow-section my-5">
+        <h3 class="text-center mb-5">How AgroAssist Works</h3>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="flow-card">
+                    <div class="flow-icon">
+                        <i class="fas fa-flask"></i>
+                    </div>
+                    <h4>1. Soil Analysis</h4>
+                    <p>Input your soil's NPK values and we'll analyze the nutrient content to determine soil health.</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="flow-card">
+                    <div class="flow-icon">
+                        <i class="fas fa-cloud-sun"></i>
+                    </div>
+                    <h4>2. Climate Assessment</h4>
+                    <p>We evaluate temperature, humidity, and rainfall patterns to assess environmental conditions.</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="flow-card">
+                    <div class="flow-icon">
+                        <i class="fas fa-leaf"></i>
+                    </div>
+                    <h4>3. Smart Recommendation</h4>
+                    <p>Our AI model processes the data to suggest the most suitable crops for your farm.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Features Section -->
+    <div class="container features-section my-5">
+        <h3 class="text-center mb-5">Key Features</h3>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h4>AI-Powered Analysis</h4>
+                        <p>Advanced machine learning algorithms analyze your farm's conditions to provide accurate crop recommendations.</p>
+                    </div>
+                    <div class="feature-hover">
+                        <span class="hover-text">Uses Random Forest Algorithm</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h4>Data Visualization</h4>
+                        <p>Interactive charts and graphs help you understand crop requirements and environmental conditions.</p>
+                    </div>
+                    <div class="feature-hover">
+                        <span class="hover-text">PowerBI Integration</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h4>Mobile Responsive</h4>
+                        <p>Access the system from any device - desktop, tablet, or mobile phone with full functionality.</p>
+                    </div>
+                    <div class="feature-hover">
+                        <span class="hover-text">Cross-Platform Compatible</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h4>Comprehensive Database</h4>
+                        <p>Extensive database of crops with their optimal growing conditions and requirements.</p>
+                    </div>
+                    <div class="feature-hover">
+                        <span class="hover-text">20+ Crop Varieties</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-cloud-sun-rain"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h4>Climate Analysis</h4>
+                        <p>Considers temperature, humidity, and rainfall patterns for optimal crop selection.</p>
+                    </div>
+                    <div class="feature-hover">
+                        <span class="hover-text">Real-time Weather Data</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-leaf"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h4>Soil Health Analysis</h4>
+                        <p>Evaluates soil nutrients (NPK) and pH levels to ensure optimal growing conditions.</p>
+                    </div>
+                    <div class="feature-hover">
+                        <span class="hover-text">Detailed Soil Reports</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+   <!-- Crop Scrolling List -->
+<h3 class="text-center mt-5">Our Crops</h3>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 crop-list mx-auto">
+            <div class="row">
+                <div class="col-6 col-md-4 mb-4">
+                    <div class="card">
+                        <img src="{{ url_for('static', filename='rice.jpg') }}" class="card-img-top crop-image" alt="Rice">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Rice</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 mb-4">
+                    <div class="card">
+                        <img src="{{ url_for('static', filename='cotton.jpg') }}" class="card-img-top crop-image" alt="Cotton">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Cotton</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 mb-4">
+                    <div class="card">
+                        <img src="{{ url_for('static', filename='jute.jpg') }}" class="card-img-top crop-image" alt="Jute">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Jute</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 mb-4">
+                    <div class="card">
+                        <img src="{{ url_for('static', filename='papaya.jpg') }}" class="card-img-top crop-image" alt="Papaya">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Papaya</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 mb-4">
+                    <div class="card">
+                        <img src="{{ url_for('static', filename='maize.jpg') }}" class="card-img-top crop-image" alt="Maize">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Maize</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 mb-4">
+                    <div class="card">
+                        <img src="{{ url_for('static', filename='moth.jpg') }}" class="card-img-top crop-image" alt="Moth Bean">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Moth Bean</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 mb-4">
+                    <div class="card">
+                        <img src="{{ url_for('static', filename='black.jpg') }}" class="card-img-top crop-image" alt="Black Gram">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Black Gram</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 mb-4">
+                    <div class="card">
+                        <img src="{{ url_for('static', filename='kidney.jpg') }}" class="card-img-top crop-image" alt="Kidney Beans">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Kidney Beans</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 mb-4">
+                    <div class="card">
+                        <img src="{{ url_for('static', filename='peas.jpg') }}" class="card-img-top crop-image" alt="Pigeon Peas">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Pigeon Peas</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 mb-4">
+                    <div class="card">
+                        <img src="{{ url_for('static', filename='pomo.jpg') }}" class="card-img-top crop-image" alt="Pomegranate">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Pomegranate</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 mb-4">
+                    <div class="card">
+                        <img src="{{ url_for('static', filename='coffe.jpg') }}" class="card-img-top crop-image" alt="Coffee">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Coffee</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 mb-4">
+                    <div class="card">
+                        <img src="{{ url_for('static', filename='muskmelon].jpg') }}" class="card-img-top crop-image" alt="Muskmelon">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Muskmelon</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 mb-4">
+                    <div class="card">
+                        <img src="{{ url_for('static', filename='watermelon.jpg') }}" class="card-img-top crop-image" alt="Watermelon">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Watermelon</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 mb-4">
+                    <div class="card">
+                        <img src="{{ url_for('static', filename='chik.jpg') }}" class="card-img-top crop-image" alt="Chickpea">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Chickpea</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 mb-4">
+                    <div class="card">
+                        <img src="{{ url_for('static', filename='bananan.jpg') }}" class="card-img-top crop-image" alt="Banana">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Banana</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 mb-4">
+                    <div class="card">
+                        <img src="{{ url_for('static', filename='apple.jpg') }}" class="card-img-top crop-image" alt="Apple">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Apple</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 mb-4">
+                    <div class="card">
+                        <img src="{{ url_for('static', filename='grapes.jpg') }}" class="card-img-top crop-image" alt="Grapes">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Grapes</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 mb-4">
+                    <div class="card">
+                        <img src="{{ url_for('static', filename='orange.jpg') }}" class="card-img-top crop-image" alt="Orange">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Orange</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 mb-4">
+                    <div class="card">
+                        <img src="{{ url_for('static', filename='coconut.jpg') }}" class="card-img-top crop-image" alt="Coconut">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Coconut</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 mb-4">
+                    <div class="card">
+                        <img src="{{ url_for('static', filename='mango.jpg') }}" class="card-img-top crop-image" alt="Mango">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Mango</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 mb-4">
+                    <div class="card">
+                        <img src="{{ url_for('static', filename='lent.jpg') }}" class="card-img-top crop-image" alt="Lentil">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Lentil</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Optional Footer -->
+<footer class="bg-dark text-white text-center py-3 mt-5">
+    <p>&copy; 2024-25 AgroAssist. All rights reserved.</p>
+    <p> created by Gunjankumar Choudhari</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
+</body>
+</html>
